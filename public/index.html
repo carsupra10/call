@@ -1,72 +1,44 @@
-<!-- public/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Voice Chat</title>
-  <script src="/socket.io/socket.io.js"></script>
+  <title>Anonymous Voice Call - Private User</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Optional theme -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap-theme.min.css">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
-  <h1>Voice Chat</h1>
-  <input type="text" id="nameInput" placeholder="Enter your name">
-  <button id="joinBtn">Join</button>
-  <ul id="userList"></ul>
-  <button id="micBtn">Toggle Mic</button>
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-body text-center">
+            <h1 class="card-title">Anonymous Voice Call</h1>
+            <audio id="remoteAudio" class="w-100" autoplay></audio>
+            <div class="mt-3">
+              <button id="startButton" class="btn btn-primary">Start Streaming</button>
+              <button id="toggleMicButton" class="btn btn-secondary ms-2">
+                <i class="bi bi-mic-mute"></i> Mute Mic
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <script>
-    const socket = io();
-    let localStream;
-
-    document.getElementById('joinBtn').addEventListener('click', () => {
-      const name = document.getElementById('nameInput').value;
-      if (name) {
-        socket.emit('join', name);
-      }
-    });
-
-    socket.on('updateUserList', (users) => {
-      const userList = document.getElementById('userList');
-      userList.innerHTML = '';
-      users.forEach((user) => {
-        const li = document.createElement('li');
-        li.textContent = user;
-        userList.appendChild(li);
-      });
-    });
-
-    document.getElementById('micBtn').addEventListener('click', async () => {
-      if (!localStream) {
-        localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const audioContext = new AudioContext();
-        const source = audioContext.createMediaStreamSource(localStream);
-        const processor = audioContext.createScriptProcessor(1024, 1, 1);
-
-        source.connect(processor);
-        processor.connect(audioContext.destination);
-
-        processor.onaudioprocess = (e) => {
-          const input = e.inputBuffer.getChannelData(0);
-          socket.emit('voice', input);
-        };
-      } else {
-        localStream.getTracks().forEach(track => track.stop());
-        localStream = null;
-      }
-    });
-
-    socket.on('voice', (data) => {
-      const audioContext = new AudioContext();
-      const buffer = new Float32Array(data);
-      const source = audioContext.createBufferSource();
-      const audioBuffer = audioContext.createBuffer(1, buffer.length, audioContext.sampleRate);
-
-      audioBuffer.getChannelData(0).set(buffer);
-      source.buffer = audioBuffer;
-      source.connect(audioContext.destination);
-      source.start();
-    });
-  </script>
+  <!-- Bootstrap Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+  <!-- SimplePeer library -->
+  <script defer src="https://cdn.jsdelivr.net/npm/simple-peer/simplepeer.min.js"></script>
+  <!-- Socket.io -->
+  <script src="/socket.io/socket.io.js"></script>
+  <!-- Client-side script -->
+  <script defer src="client.js"></script>
 </body>
 </html>
-

@@ -12,6 +12,9 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.19.2",
-    "socket.io": "^4.7.5"
+    "simple-peer": "^9.11.1",
+    "socket.io": "^4.7.5",
+    "tailwindcss": "^3.4.4",
+    "wrtc": "^0.4.7"
   }
 }
